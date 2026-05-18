@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Paws & Cross - Panel de Control</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#004ac6",
+                        "secondary": "#006c49",
+                        "tertiary": "#784b00",
+                        "background": "#f8f9ff",
+                        "surface": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "on-surface": "#0b1c30",
+                        "on-surface-variant": "#434655",
+                        "outline-variant": "#c3c6d7",
+                        "error": "#ba1a1a"
+                    },
+                    "fontFamily": {
+                        "body-base": ["Manrope"],
+                        "headline-md": ["Plus Jakarta Sans"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-base">
+
+<aside class="fixed left-0 top-0 h-screen w-[260px] bg-white border-r border-outline-variant flex flex-col py-8 z-50">
+    <div class="px-6 mb-10 flex items-center gap-3">
+        <img alt="Paws & Cross Logo" class="w-10 h-10 rounded-lg" src="/img/perritos_clinic_logo.png"/>
+        <div>
+            <h1 class="font-headline-md text-xl text-primary font-bold leading-tight">Paws & Cross</h1>
+            <p class="text-xs text-on-surface-variant">Clínica Veterinaria</p>
+        </div>
+    </div>
+    
+    <nav class="flex-1 space-y-1">
+        <a class="flex items-center gap-3 px-6 py-3 text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-colors" href="/dashboard">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">dashboard</span>
+            <span>Dashboard</span>
+        </a>
+        <a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/pacientes">
+            <span class="material-symbols-outlined">pets</span>
+            <span>Pacientes</span>
+        </a>
+        <a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/historial">
+            <span class="material-symbols-outlined">description</span>
+            <span>Historial Médico</span>
+        </a>
+        <a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/agenda">
+            <span class="material-symbols-outlined">calendar_month</span>
+            <span>Agenda</span>
+        </a>
+    </nav>
+
+    <div class="px-6 mt-auto">
+        <a href="/pacientes/nuevo" class="w-full py-3 bg-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity text-center">
+            <span class="material-symbols-outlined">add</span>
+            Añadir Paciente
+        </a>
+    </div>
+</aside>
+
+<div class="ml-[260px] min-h-screen flex flex-col">
+    <header class="sticky top-0 z-40 bg-white border-b border-outline-variant flex justify-between items-center h-16 px-6 w-full">
+        <div class="flex items-center flex-1 max-w-xl">
+            <div class="relative w-full">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                <input id="buscador-global" onkeyup="filtrarContenido()" class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Buscar pacientes, citas..." type="text"/>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2 relative">
+            <div class="relative">
+                <button onclick="toggleDropdown('notificaciones-menu')" class="p-2 hover:bg-surface-container-low rounded-full transition-colors relative flex items-center">
+                    <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+                    <span id="notif-dot" class="hidden absolute top-1 right-2 w-2 h-2 bg-error rounded-full animate-pulse"></span>
+                </button>
+                <div id="notificaciones-menu" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-outline-variant overflow-hidden z-50">
+                    <div class="p-3 border-b border-outline-variant bg-gray-50 font-bold text-sm text-on-surface flex justify-between items-center">
+                        Notificaciones de Hoy
+                        <span id="notif-count" class="bg-primary text-white text-[10px] px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="notif-list" class="max-h-64 overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <div class="h-8 w-px bg-outline-variant mx-1"></div>
+
+            <div class="relative">
+                <button onclick="toggleDropdown('perfil-menu')" class="flex items-center gap-3 hover:bg-surface-container-low p-1 pr-3 rounded-full transition-colors cursor-pointer">
+                    <div id="avatar-iniciales" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">--</div>
+                    <div class="text-left hidden md:block">
+                        <p id="perfil-nombre" class="text-sm font-bold text-on-surface">Cargando...</p>
+                        <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Veterinario</p>
+                    </div>
+                    <span class="material-symbols-outlined text-sm text-on-surface-variant">expand_more</span>
+                </button>
+                <div id="perfil-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-outline-variant overflow-hidden z-50">
+                    <a href="/api/v1/usuarios/logout" class="block px-4 py-2.5 text-sm text-error font-bold hover:bg-red-50 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">logout</span> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-6 flex gap-6 flex-1 overflow-hidden">
+        
+        <section class="flex-1 flex flex-col bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-outline-variant flex items-center justify-between">
+                <h2 class="font-headline-md text-xl font-bold text-on-surface">Mayo 2026</h2>
+            </div>
+            <div class="flex-1 flex flex-col">
+                <div class="calendar-grid border-b border-outline-variant bg-gray-50 text-center py-2 text-xs font-bold text-on-surface-variant">
+                    <div>DOM</div><div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div>
+                </div>
+                <div id="calendar-cells" class="calendar-grid flex-1 overflow-y-auto"></div>
+            </div>
+        </section>
+
+        <aside class="w-[320px] flex flex-col gap-6">
+            <div class="bg-white rounded-xl border border-outline-variant p-4 flex flex-col shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-headline-md text-base font-bold text-on-surface">Agenda de Hoy</h3>
+                    <span id="contador-hoy" class="bg-blue-100 text-primary text-[11px] font-bold px-2 py-0.5 rounded-full">Cargando...</span>
+                </div>
+                <div id="sidebar-hoy-container" class="space-y-4"></div>
+            </div>
+        </aside>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        cargarPerfil(); 
+        cargarNotificaciones();
+        if(typeof cargarDatosDashboard === 'function') cargarDatosDashboard();
+        if(typeof cargarHistoriales === 'function') cargarHistoriales();
+        if(typeof cargarAgenda === 'function') cargarAgenda();
+        if(typeof cargarPacientes === 'function') cargarPacientes();
+    });
+
+    async function cargarPerfil() {
+        try {
+            const response = await fetch('/api/v1/usuarios/me');
+            if (response.ok) {
+                const usuario = await response.json();
+                document.getElementById('perfil-nombre').textContent = `Dr(a). ${usuario.nombre}`;
+                const inicial = usuario.nombre.charAt(0).toUpperCase();
+                document.getElementById('avatar-iniciales').textContent = inicial;
+            }
+        } catch (error) {
+            console.error("Error al cargar el perfil:", error);
+        }
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', cargarDatosDashboard);
+
+    function toggleDropdown(id) {
+        const menu = document.getElementById(id);
+        if(id === 'perfil-menu') document.getElementById('notificaciones-menu').classList.add('hidden');
+        if(id === 'notificaciones-menu') document.getElementById('perfil-menu').classList.add('hidden');
+        menu.classList.toggle('hidden');
+    }
+
+    window.addEventListener('click', function(e) {
+        if (!e.target.closest('.relative')) {
+            document.getElementById('perfil-menu')?.classList.add('hidden');
+            document.getElementById('notificaciones-menu')?.classList.add('hidden');
+        }
+    });
+
+    async function cargarDatosDashboard() {
+        try {
+            const response = await fetch('/api/v1/pacientes');
+            const pacientes = await response.json();
+            renderizarCalendario(pacientes);
+            renderizarSidebarHoy(pacientes);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function renderizarCalendario(pacientes) {
+        const contenedor = document.getElementById('calendar-cells');
+        contenedor.innerHTML = '';
+        const diasAbril = [26, 27, 28, 29, 30];
+        
+        diasAbril.forEach(dia => {
+            contenedor.innerHTML += `<div class="min-h-[100px] p-2 border-r border-b border-outline-variant bg-gray-50/50 opacity-40 text-xs text-gray-400">${dia}</div>`;
+        });
+
+        const diaHoy = 17; 
+        for (let dia = 1; dia <= 31; dia++) {
+            const esHoy = (dia === diaHoy);
+            const bgClass = esHoy ? 'bg-blue-50/50' : '';
+            const spanClass = esHoy ? 'inline-block w-5 h-5 bg-primary text-white text-center leading-5 rounded-full font-bold' : 'font-medium text-on-surface';
+
+            const citasDelDia = pacientes.filter(p => {
+                if (!p.hora_cita) return false;
+                const fechaCita = new Date(p.hora_cita);
+                return fechaCita.getFullYear() === 2026 && (fechaCita.getMonth() + 1) === 5 && fechaCita.getDate() === dia;
+            });
+
+            let htmlCitas = '';
+            citasDelDia.forEach(perrito => {
+                const hora = new Date(perrito.hora_cita).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                htmlCitas += `<div class="mt-1 p-1 bg-blue-100 border-l-2 border-primary text-primary rounded text-[10px] font-bold truncate">${hora} - ${perrito.nombre}</div>`;
+            });
+
+            const indiceCelda = diasAbril.length + dia;
+            const esSabado = (indiceCelda % 7 === 0);
+            const borderRightClass = esSabado ? '' : 'border-r';
+
+            contenedor.innerHTML += `
+                <div class="min-h-[100px] p-2 ${borderRightClass} border-b border-outline-variant text-xs ${bgClass}">
+                    <span class="${spanClass}">${dia}</span>
+                    <div class="mt-1 space-y-1">${htmlCitas}</div>
+                </div>
+            `;
+        }
+        
+        const celdasFaltantes = 42 - (diasAbril.length + 31); 
+        for (let dia = 1; dia <= celdasFaltantes; dia++) {
+            const borderRightClass = ((diasAbril.length + 31 + dia) % 7 === 0) ? '' : 'border-r';
+            contenedor.innerHTML += `<div class="min-h-[100px] p-2 ${borderRightClass} border-b border-outline-variant bg-gray-50/50 opacity-40 text-xs text-gray-400">${dia}</div>`;
+        }
+    }
+
+    function renderizarSidebarHoy(pacientes) {
+        const container = document.getElementById('sidebar-hoy-container');
+        const contador = document.getElementById('contador-hoy');
+        
+        const citasHoy = pacientes.filter(p => {
+            if (!p.hora_cita) return false;
+            const fechaCita = new Date(p.hora_cita);
+            return fechaCita.getFullYear() === 2026 && (fechaCita.getMonth() + 1) === 5 && fechaCita.getDate() === 17;
+        });
+
+        contador.textContent = `${citasHoy.length} Activas`;
+        container.innerHTML = '';
+
+        if (citasHoy.length === 0) {
+            container.innerHTML = `<p class="text-xs text-on-surface-variant text-center py-4">No hay citas para hoy.</p>`;
+            return;
+        }
+
+        citasHoy.sort((a, b) => new Date(a.hora_cita) - new Date(b.hora_cita));
+        citasHoy.forEach(perrito => {
+            const hora = new Date(perrito.hora_cita).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+            container.innerHTML += `
+                <div class="flex gap-3">
+                    <div class="text-center min-w-[45px]">
+                        <p class="text-xs font-bold text-on-surface">${hora}</p>
+                    </div>
+                    <div class="flex-1 p-3 rounded-lg border-l-4 border-primary bg-blue-50/60">
+                        <h4 class="text-xs font-bold text-on-surface">${perrito.nombre} (${perrito.raza})</h4>
+                        <p class="text-[10px] text-on-surface-variant mt-1 truncate">Motivo: Cita Clínica</p>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function filtrarContenido() {
+        const input = document.getElementById('buscador-global').value.toLowerCase();
+        const cardsDerecha = document.querySelectorAll('#sidebar-hoy-container > div');
+        
+        cardsDerecha.forEach(card => {
+            const texto = card.innerText.toLowerCase();
+            card.style.display = texto.includes(input) ? 'flex' : 'none';
+        });
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        cargarNotificaciones();
+        if(typeof cargarDatosDashboard === 'function') cargarDatosDashboard();
+        if(typeof cargarHistoriales === 'function') cargarHistoriales();
+        if(typeof cargarAgenda === 'function') cargarAgenda();
+        if(typeof cargarPacientes === 'function') cargarPacientes();
+    });
+
+    function toggleDropdown(id) {
+        const menu = document.getElementById(id);
+        if(id === 'perfil-menu') {
+            document.getElementById('notificaciones-menu')?.classList.add('hidden');
+        } else if(id === 'notificaciones-menu') {
+            document.getElementById('perfil-menu')?.classList.add('hidden');
+        }
+        menu.classList.toggle('hidden');
+    }
+
+    window.addEventListener('click', function(e) {
+        if (!e.target.closest('.relative')) {
+            document.getElementById('perfil-menu')?.classList.add('hidden');
+            document.getElementById('notificaciones-menu')?.classList.add('hidden');
+        }
+    });
+
+    async function cargarNotificaciones() {
+        try {
+            const response = await fetch('/api/v1/pacientes');
+            if (!response.ok) return;
+            const pacientes = await response.json();
+
+            const notifList = document.getElementById('notif-list');
+            const notifDot = document.getElementById('notif-dot');
+            const notifCount = document.getElementById('notif-count');
+            
+            if (!notifList || !notifDot || !notifCount) return;
+
+            const hoy = new Date();
+            const citasHoy = pacientes.filter(p => {
+                if (!p.hora_cita) return false;
+                const fechaCita = new Date(p.hora_cita);
+                return fechaCita.getFullYear() === hoy.getFullYear() && 
+                       fechaCita.getMonth() === hoy.getMonth() && 
+                       fechaCita.getDate() === hoy.getDate() &&
+                       p.estado !== 'FINALIZADO';
+            });
+
+            citasHoy.sort((a, b) => new Date(a.hora_cita) - new Date(b.hora_cita));
+            notifCount.textContent = citasHoy.length;
+
+            if (citasHoy.length > 0) {
+                notifDot.classList.remove('hidden');
+                notifList.innerHTML = '';
+                citasHoy.forEach(cita => {
+                    const hora = new Date(cita.hora_cita).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                    notifList.innerHTML += `
+                        <div class="p-4 flex gap-3 hover:bg-gray-50 border-b border-outline-variant transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined text-primary mt-0.5">pets</span>
+                            <div>
+                                <p class="text-xs font-bold text-on-surface">Cita a las ${hora}</p>
+                                <p class="text-[11px] text-on-surface-variant">Paciente: ${cita.nombre} (${cita.raza})</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                notifDot.classList.add('hidden');
+                notifList.innerHTML = `
+                    <div class="p-6 text-center text-on-surface-variant flex flex-col items-center">
+                        <span class="material-symbols-outlined text-3xl mb-2 opacity-50">done_all</span>
+                        <p class="text-xs font-bold text-on-surface">Todo al día</p>
+                        <p class="text-[11px]">No tienes citas programadas para hoy.</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function filtrarContenido() {
+        const input = document.getElementById('buscador-global')?.value.toLowerCase() || '';
+        
+        document.querySelectorAll('#pacientes-tbody tr').forEach(fila => {
+            if (fila.children.length > 1) fila.style.display = fila.innerText.toLowerCase().includes(input) ? '' : 'none';
+        });
+        document.querySelectorAll('#historial-container > div:not(.col-span-full)').forEach(tarjeta => {
+            tarjeta.style.display = tarjeta.innerText.toLowerCase().includes(input) ? '' : 'none';
+        });
+        document.querySelectorAll('#sidebar-hoy-container > div').forEach(card => {
+            card.style.display = card.innerText.toLowerCase().includes(input) ? 'flex' : 'none';
+        });
+    }
+</script>
+
+</body>
+</html>

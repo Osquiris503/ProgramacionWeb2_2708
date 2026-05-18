@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS veterinarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    edad INT NOT NULL,
+    telefono VARCHAR(20) NOT NULL,
+    carrera VARCHAR(150) NOT NULL,
+    especialidad VARCHAR(150),
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

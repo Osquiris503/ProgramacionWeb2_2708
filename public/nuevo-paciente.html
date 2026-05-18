@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Paws & Cross - Alta de Paciente</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#004ac6",
+                        "background": "#f8f9ff",
+                        "on-surface": "#0b1c30",
+                        "on-surface-variant": "#434655",
+                        "outline-variant": "#c3c6d7"
+                    },
+                    "fontFamily": { "body-base": ["Manrope"], "headline-md": ["Plus Jakarta Sans"] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-base">
+
+<aside class="fixed left-0 top-0 h-screen w-[260px] bg-white border-r border-outline-variant flex flex-col py-8 z-50">
+    <div class="px-6 mb-10 flex items-center gap-3">
+        <img alt="Paws & Cross Logo" class="w-10 h-10 rounded-lg" src="/img/perritos_clinic_logo.png"/>
+        <div>
+            <h1 class="font-headline-md text-xl text-primary font-bold leading-tight">Paws & Cross</h1>
+            <p class="text-xs text-on-surface-variant">Clínica Veterinaria</p>
+        </div>
+    </div>
+    <nav class="flex-1 space-y-1">
+        <a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/dashboard">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span>Dashboard</span>
+        </a>
+        
+        <a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/pacientes">
+            <span class="material-symbols-outlined">pets</span>
+            <span>Pacientes</span>
+        </a>
+        
+        <a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/historial">
+            <span class="material-symbols-outlined">description</span>
+            <span>Historial Médico</span>
+        </a>
+        
+        <a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/agenda">
+            <span class="material-symbols-outlined">calendar_month</span>
+            <span>Agenda</span>
+        </a>
+    </nav>
+
+    <div class="px-6 mt-auto">
+        <a href="/pacientes/nuevo" class="w-full py-3 bg-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+            <span class="material-symbols-outlined">add</span>
+            Añadir Paciente
+        </a>
+    </div>
+</aside>
+
+<div class="ml-[260px] min-h-screen flex flex-col">
+    <header class="sticky top-0 z-40 bg-white border-b border-outline-variant flex justify-between items-center h-16 px-6">
+        <h2 class="font-headline-md text-lg font-bold text-on-surface">Gestión de Pacientes</h2>
+    </header>
+
+    <main class="p-8 flex justify-center items-start flex-1">
+        <div class="bg-white w-full max-w-2xl rounded-2xl border border-outline-variant p-6 shadow-sm">
+            <div class="mb-6">
+                <h3 class="text-xl font-bold text-primary">Dar de Alta Nuevo Perrito</h3>
+                <p class="text-sm text-on-surface-variant">Ingresa los datos clínicos necesarios del paciente canino.</p>
+            </div>
+
+            <form action="/api/v1/pacientes/nuevo" method="post" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col">
+                        <label for="nombre" class="text-xs font-bold mb-1">Nombre del Perrito</label>
+                        <input type="text" id="nombre" name="nombre" class="rounded-lg border-gray-300 text-sm focus:ring-primary focus:border-primary" required>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="raza" class="text-xs font-bold mb-1">Raza</label>
+                        <input type="text" id="raza" name="raza" placeholder="Ej. Golden Retriever, Mestizo" class="rounded-lg border-gray-300 text-sm focus:ring-primary focus:border-primary" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col">
+                        <label for="edad" class="text-xs font-bold mb-1">Edad (Años)</label>
+                        <input type="number" id="edad" name="edad" min="0" class="rounded-lg border-gray-300 text-sm focus:ring-primary focus:border-primary" required>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="peso" class="text-xs font-bold mb-1">Peso (Kg)</label>
+                        <input type="number" id="peso" name="peso" step="0.01" min="0" class="rounded-lg border-gray-300 text-sm focus:ring-primary focus:border-primary" required>
+                    </div>
+                </div>
+
+                <div class="flex flex-col">
+                    <label for="historial" class="text-xs font-bold mb-1">Historial Clínico / Síntomas Iniciales</label>
+                    <textarea id="historial" name="historial" rows="4" class="rounded-lg border-gray-300 text-sm focus:ring-primary focus:border-primary"></textarea>
+                </div>
+
+                <div class="flex flex-col mb-4">
+                    <label for="hora_cita" class="text-xs font-bold mb-1 text-primary flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">calendar_month</span> Fecha y Hora de la Cita
+                    </label>
+                    <input type="datetime-local" id="hora_cita" name="hora_cita" class="rounded-lg border-gray-300 text-sm focus:ring-primary focus:border-primary" required>
+                </div>
+
+                <div class="flex gap-3 justify-end pt-4 border-t">
+                    <a href="/dashboard" class="px-5 py-2.5 rounded-xl border border-gray-300 text-sm font-bold text-center hover:bg-gray-50 transition-colors">Cancelar</a>
+                    <button type="submit" class="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">Guardar Paciente</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>
